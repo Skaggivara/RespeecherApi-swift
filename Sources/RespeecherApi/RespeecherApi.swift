@@ -10,11 +10,11 @@ import Alamofire
 
 // https://gateway.respeecher.com/api/docs
 
-enum RespeechApiError: Equatable {
+public enum RespeechApiError: Equatable {
     case uploadFailed, authFailed, requestFailed(String? = nil)
 }
 
-struct RespeecherGroup: Codable {
+public struct RespeecherGroup: Codable {
     let id: String
     let name: String
     enum CodingKeys: String, CodingKey {
@@ -22,7 +22,7 @@ struct RespeecherGroup: Codable {
     }
 }
 
-struct RespeecherUser: Codable {
+public struct RespeecherUser: Codable {
     let id: String
     let email: String
     let verified: Bool
@@ -33,7 +33,7 @@ struct RespeecherUser: Codable {
     let groups: [RespeecherGroup]
 }
 
-struct RespeecherLoginResponse: Codable {
+public struct RespeecherLoginResponse: Codable {
     let user: RespeecherUser
     let csrfToken : String
 
@@ -43,7 +43,7 @@ struct RespeecherLoginResponse: Codable {
     }
 }
 
-struct RespeecherRecording: Codable {
+public struct RespeecherRecording: Codable {
 
     let id: String
     let phraseId: String
@@ -132,7 +132,7 @@ struct RespeecherRecording: Codable {
     }
 }
 
-struct RespeecherPhrase: Codable {
+public struct RespeecherPhrase: Codable {
     let id: String
     let projectId: String
     let text: String
@@ -146,7 +146,7 @@ struct RespeecherPhrase: Codable {
     }
 }
 
-struct RespeecherModelParam: Codable {
+public struct RespeecherModelParam: Codable {
     let id: String
     let alias: String
     let locked: String?
@@ -161,7 +161,7 @@ struct RespeecherModelParam: Codable {
     }
 }
 
-struct RespeecherModel: Codable {
+public struct RespeecherModel: Codable {
     let id: String
     let name: String
     let owner: String
@@ -188,7 +188,7 @@ struct RespeecherModel: Codable {
     }
 }
 
-struct RespeecherProject: Codable {
+public struct RespeecherProject: Codable {
     let id: String
     let active: Bool
     let createdAt: String
@@ -203,7 +203,7 @@ struct RespeecherProject: Codable {
     }
 }
 
-struct RespeecherVoice: Codable {
+public struct RespeecherVoice: Codable {
     let code: String
     let name: String
     let gender: String
@@ -218,14 +218,14 @@ struct RespeecherVoice: Codable {
     }
 }
 
-struct RespeecherErrorResponse: Codable {
+public struct RespeecherErrorResponse: Codable {
     let detail: String
     enum CodingKeys: String, CodingKey {
         case detail
     }
 }
 
-struct RespeecherErrorValidation: Codable {
+public struct RespeecherErrorValidation: Codable {
     let loc: [String]
     let msg: String
     let type: String
@@ -235,21 +235,21 @@ struct RespeecherErrorValidation: Codable {
     }
 }
 
-struct RespeecherErrorValidationResponse: Codable {
+public struct RespeecherErrorValidationResponse: Codable {
     let detail: [RespeecherErrorValidation]
     enum CodingKeys: String, CodingKey {
         case detail
     }
 }
 
-struct RespeecherVoiceResponse: Codable {
+public struct RespeecherVoiceResponse: Codable {
     let voices: [RespeecherVoice]
 
     enum CodingKeys: String, CodingKey {
         case voices
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let voicesData = try container.decode([String: RespeecherVoice].self, forKey: .voices)
         var list: [RespeecherVoice] = []
@@ -263,11 +263,11 @@ struct RespeecherVoiceResponse: Codable {
     }
 }
 
-protocol RespeechApiAuthDelegate: AnyObject {
+public protocol RespeechApiAuthDelegate: AnyObject {
     func authStatusChanged(_ sender: RespeechApi, authenticated: Bool)
 }
 
-class RespeechApi {
+public class RespeechApi {
 
     static var endPoint = "https://gateway.respeecher.com/api/"
 
