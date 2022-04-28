@@ -401,7 +401,7 @@ public class RespeechApi {
     static let voicePath = endPoint + "tts-voice"
     static let voiceCreatePath = endPoint + "recordings/tts"
 
-    static let allowedFileTypes: [String] = ["wav", "ogg", "mp3", "flac"]
+    public static let allowedFileTypes: [String] = ["wav", "ogg", "mp3", "flac"]
 
     public private(set) var isAuthenticated: Bool = false {
         didSet {
