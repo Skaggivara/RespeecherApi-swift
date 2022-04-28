@@ -20,6 +20,10 @@ public struct RespeecherGroup: Codable {
     enum CodingKeys: String, CodingKey {
         case id, name
     }
+    public init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
 }
 
 public struct RespeecherUser: Codable {
@@ -31,6 +35,17 @@ public struct RespeecherUser: Codable {
     let last_name: String
     let roles: [String]
     let groups: [RespeecherGroup]
+
+    public init(id: String, email: String, verified: Bool, username: String, first_name: String, last_name: String, roles: [String], groups: [RespeecherGroup]) {
+        self.id = id
+        self.email = email
+        self.verified = verified
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+        self.roles = roles
+        self.groups = groups
+    }
 }
 
 public struct RespeecherLoginResponse: Codable {
@@ -40,6 +55,11 @@ public struct RespeecherLoginResponse: Codable {
     enum CodingKeys: String, CodingKey {
         case user
         case csrfToken = "csrf_token"
+    }
+
+    public init(user: RespeecherUser, csrfToken: String) {
+        self.user = user
+        self.csrfToken = csrfToken
     }
 }
 
@@ -115,7 +135,47 @@ public struct RespeecherRecording: Codable {
         case modelName = "model_name"
     }
 
-    func localPath() -> URL? {
+    public init(id: String,
+                phraseId: String,
+                type: String,
+                url: String?,
+                name: String,
+                takeNumber: Int,
+                state: String,
+                originalId: String?,
+                modelId: String?,
+                modelName: String?,
+                microphone: String,
+                size: Int,
+                starred: Bool,
+                error: String,
+                createdAt: String,
+                convertedAt: String?,
+                tts: Bool,
+                ttsVoice: String?,
+                text: String?) {
+        self.id = id
+        self.phraseId = phraseId
+        self.type = type
+        self.url = url
+        self.name = name
+        self.takeNumber = takeNumber
+        self.state = state
+        self.originalId = originalId
+        self.modelId = modelId
+        self.modelName = modelName
+        self.microphone = microphone
+        self.size = size
+        self.starred = starred
+        self.error = error
+        self.createdAt = createdAt
+        self.convertedAt = convertedAt
+        self.tts = tts
+        self.ttsVoice = ttsVoice
+        self.text = text
+    }
+
+    public func localPath() -> URL? {
         guard let urlString = self.url, let url = URL(string: urlString) else { return nil }
         let fileName = url.lastPathComponent
         let directoryURL =  FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -123,7 +183,7 @@ public struct RespeecherRecording: Codable {
         return destURL
     }
 
-    func fileExists() -> Bool {
+    public func fileExists() -> Bool {
         guard let localPath = self.localPath() else { return false }
         if FileManager.default.fileExists(atPath: localPath.path) {
             return true
@@ -144,6 +204,14 @@ public struct RespeecherPhrase: Codable {
         case projectId = "project_id"
         case createdAt = "created_at"
     }
+
+    public init(id: String, projectId: String, text: String, active: Bool, createdAt: String) {
+        self.id = id
+        self.projectId = projectId
+        self.text = text
+        self.active = active
+        self.createdAt = createdAt
+    }
 }
 
 public struct RespeecherModelParam: Codable {
@@ -158,6 +226,15 @@ public struct RespeecherModelParam: Codable {
         case id, alias, locked, type
         case defaultValue = "default"
         case workerId = "worker_id"
+    }
+
+    public init(id: String, alias: String, locked: String?, type: String, defaultValue: String, workerId: String) {
+        self.id = id
+        self.alias = alias
+        self.locked = locked
+        self.type = type
+        self.defaultValue = defaultValue
+        self.workerId = workerId
     }
 }
 
@@ -175,7 +252,17 @@ public struct RespeecherModel: Codable {
         case dateCreated = "date_created"
     }
 
-    func defaultParams() -> [[String: Any]] {
+    public init(id: String, name: String, owner: String, visibility: String, m2o: Bool, dateCreated: String, params: [RespeecherModelParam]) {
+        self.id = id
+        self.name = name
+        self.owner = owner
+        self.visibility = visibility
+        self.m2o = m2o
+        self.dateCreated = dateCreated
+        self.params = params
+    }
+
+    public func defaultParams() -> [[String: Any]] {
         var ps: [[String: Any]] = []
         for p in params {
             ps.append([
@@ -201,6 +288,16 @@ public struct RespeecherProject: Codable {
         case id, active, slug, owner, url, name
         case createdAt = "created_at"
     }
+
+    public init(id: String, active: Bool, createdAt: String, slug: String, owner: String, url: String, name: String) {
+        self.id = id
+        self.active = active
+        self.createdAt = createdAt
+        self.slug = slug
+        self.owner = owner
+        self.url = url
+        self.name = name
+    }
 }
 
 public struct RespeecherVoice: Codable {
@@ -216,12 +313,21 @@ public struct RespeecherVoice: Codable {
     enum CodingKeys: String, CodingKey {
         case code, name, gender
     }
+
+    public init(code: String, name: String, gender: String) {
+        self.code = code
+        self.name = name
+        self.gender = gender
+    }
 }
 
 public struct RespeecherErrorResponse: Codable {
     let detail: String
     enum CodingKeys: String, CodingKey {
         case detail
+    }
+    public init(detail: String) {
+        self.detail = detail
     }
 }
 
@@ -233,12 +339,20 @@ public struct RespeecherErrorValidation: Codable {
     enum CodingKeys: String, CodingKey {
         case loc, msg, type
     }
+    public init(loc: [String], msg: String, type: String) {
+        self.loc = loc
+        self.msg = msg
+        self.type = type
+    }
 }
 
 public struct RespeecherErrorValidationResponse: Codable {
     let detail: [RespeecherErrorValidation]
     enum CodingKeys: String, CodingKey {
         case detail
+    }
+    public init(detail: [RespeecherErrorValidation]) {
+        self.detail = detail
     }
 }
 
@@ -247,6 +361,10 @@ public struct RespeecherVoiceResponse: Codable {
 
     enum CodingKeys: String, CodingKey {
         case voices
+    }
+
+    public init(voices: [RespeecherVoice]) {
+        self.voices = voices
     }
 
     public init(from decoder: Decoder) throws {
@@ -302,7 +420,7 @@ public class RespeechApi {
         }
     }
 
-    init() {
+    public init() {
         self.loadExisting()
     }
 
