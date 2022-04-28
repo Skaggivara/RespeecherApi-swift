@@ -85,7 +85,7 @@ public struct RespeecherRecording: Codable {
     let ttsVoice: String?
     let text: String?
 
-    var displayName: String {
+    public var displayName: String {
         get {
             if type == "original" {
                 var t = "#Take \(takeNumber) (original)"
@@ -106,7 +106,7 @@ public struct RespeecherRecording: Codable {
         }
     }
 
-    var exportName: String {
+    public var exportName: String {
         get {
             if type == "original" {
                 var t = "#Take \(takeNumber) (original)"
@@ -306,7 +306,7 @@ public struct RespeecherVoice: Codable {
     let gender: String
     var apiCode: String? = nil
 
-    var displayName: String {
+    public var displayName: String {
         return "\(name) - \(gender)"
     }
 
