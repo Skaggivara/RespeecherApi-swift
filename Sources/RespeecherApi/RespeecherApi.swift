@@ -15,8 +15,8 @@ public enum RespeechApiError: Equatable {
 }
 
 public struct RespeecherGroup: Codable {
-    let id: String
-    let name: String
+    public let id: String
+    public let name: String
     enum CodingKeys: String, CodingKey {
         case id, name
     }
@@ -27,14 +27,14 @@ public struct RespeecherGroup: Codable {
 }
 
 public struct RespeecherUser: Codable {
-    let id: String
-    let email: String
-    let verified: Bool
-    let username: String
-    let first_name: String
-    let last_name: String
-    let roles: [String]
-    let groups: [RespeecherGroup]
+    public let id: String
+    public let email: String
+    public let verified: Bool
+    public let username: String
+    public let first_name: String
+    public let last_name: String
+    public let roles: [String]
+    public let groups: [RespeecherGroup]
 
     public init(id: String, email: String, verified: Bool, username: String, first_name: String, last_name: String, roles: [String], groups: [RespeecherGroup]) {
         self.id = id
@@ -49,8 +49,8 @@ public struct RespeecherUser: Codable {
 }
 
 public struct RespeecherLoginResponse: Codable {
-    let user: RespeecherUser
-    let csrfToken : String
+    public let user: RespeecherUser
+    public let csrfToken : String
 
     enum CodingKeys: String, CodingKey {
         case user
@@ -65,25 +65,25 @@ public struct RespeecherLoginResponse: Codable {
 
 public struct RespeecherRecording: Codable {
 
-    let id: String
-    let phraseId: String
-    let type: String
-    let url: String?
-    let name: String
-    let takeNumber: Int
-    let state: String
-    let originalId: String?
-    let modelId: String?
-    let modelName: String?
-    let microphone: String
-    let size: Int
-    let starred: Bool
-    let error: String
-    let createdAt: String
-    let convertedAt: String?
-    let tts: Bool
-    let ttsVoice: String?
-    let text: String?
+    public let id: String
+    public let phraseId: String
+    public let type: String
+    public let url: String?
+    public let name: String
+    public let takeNumber: Int
+    public let state: String
+    public let originalId: String?
+    public let modelId: String?
+    public let modelName: String?
+    public let microphone: String
+    public let size: Int
+    public let starred: Bool
+    public let error: String
+    public let createdAt: String
+    public let convertedAt: String?
+    public let tts: Bool
+    public let ttsVoice: String?
+    public let text: String?
 
     public var displayName: String {
         get {
@@ -193,11 +193,11 @@ public struct RespeecherRecording: Codable {
 }
 
 public struct RespeecherPhrase: Codable {
-    let id: String
-    let projectId: String
-    let text: String
-    let active: Bool
-    let createdAt: String
+    public let id: String
+    public let projectId: String
+    public let text: String
+    public let active: Bool
+    public let createdAt: String
 
     enum CodingKeys: String, CodingKey {
         case id, text, active
@@ -215,12 +215,12 @@ public struct RespeecherPhrase: Codable {
 }
 
 public struct RespeecherModelParam: Codable {
-    let id: String
-    let alias: String
-    let locked: String?
-    let type: String
-    let defaultValue: String
-    let workerId: String
+    public let id: String
+    public let alias: String
+    public let locked: String?
+    public let type: String
+    public let defaultValue: String
+    public let workerId: String
 
     enum CodingKeys: String, CodingKey {
         case id, alias, locked, type
@@ -239,13 +239,13 @@ public struct RespeecherModelParam: Codable {
 }
 
 public struct RespeecherModel: Codable {
-    let id: String
-    let name: String
-    let owner: String
-    let visibility: String
-    let m2o: Bool
-    let dateCreated: String
-    let params: [RespeecherModelParam]
+    public let id: String
+    public let name: String
+    public let owner: String
+    public let visibility: String
+    public let m2o: Bool
+    public let dateCreated: String
+    public let params: [RespeecherModelParam]
 
     enum CodingKeys: String, CodingKey {
         case id, name, owner, visibility, m2o, params
@@ -276,13 +276,13 @@ public struct RespeecherModel: Codable {
 }
 
 public struct RespeecherProject: Codable {
-    let id: String
-    let active: Bool
-    let createdAt: String
-    let slug: String
-    let owner: String
-    let url: String
-    let name: String
+    public let id: String
+    public let active: Bool
+    public let createdAt: String
+    public let slug: String
+    public let owner: String
+    public let url: String
+    public let name: String
 
     enum CodingKeys: String, CodingKey {
         case id, active, slug, owner, url, name
@@ -301,10 +301,10 @@ public struct RespeecherProject: Codable {
 }
 
 public struct RespeecherVoice: Codable {
-    let code: String
-    let name: String
-    let gender: String
-    var apiCode: String? = nil
+    public let code: String
+    public let name: String
+    public let gender: String
+    public var apiCode: String? = nil
 
     public var displayName: String {
         return "\(name) - \(gender)"
@@ -322,7 +322,7 @@ public struct RespeecherVoice: Codable {
 }
 
 public struct RespeecherErrorResponse: Codable {
-    let detail: String
+    public let detail: String
     enum CodingKeys: String, CodingKey {
         case detail
     }
@@ -332,9 +332,9 @@ public struct RespeecherErrorResponse: Codable {
 }
 
 public struct RespeecherErrorValidation: Codable {
-    let loc: [String]
-    let msg: String
-    let type: String
+    public let loc: [String]
+    public let msg: String
+    public let type: String
 
     enum CodingKeys: String, CodingKey {
         case loc, msg, type
@@ -347,7 +347,7 @@ public struct RespeecherErrorValidation: Codable {
 }
 
 public struct RespeecherErrorValidationResponse: Codable {
-    let detail: [RespeecherErrorValidation]
+    public let detail: [RespeecherErrorValidation]
     enum CodingKeys: String, CodingKey {
         case detail
     }
@@ -357,7 +357,7 @@ public struct RespeecherErrorValidationResponse: Codable {
 }
 
 public struct RespeecherVoiceResponse: Codable {
-    let voices: [RespeecherVoice]
+    public let voices: [RespeecherVoice]
 
     enum CodingKeys: String, CodingKey {
         case voices
@@ -403,14 +403,14 @@ public class RespeechApi {
 
     static let allowedFileTypes: [String] = ["wav", "ogg", "mp3", "flac"]
 
-    private(set) var isAuthenticated: Bool = false {
+    public private(set) var isAuthenticated: Bool = false {
         didSet {
             delegate?.authStatusChanged(self, authenticated: isAuthenticated)
         }
     }
-    private(set) var isAutenticating: Bool = false
+    public private(set) var isAutenticating: Bool = false
 
-    private(set) var token: String = ""
+    public private(set) var token: String = ""
 
     weak var delegate: RespeechApiAuthDelegate?
 
