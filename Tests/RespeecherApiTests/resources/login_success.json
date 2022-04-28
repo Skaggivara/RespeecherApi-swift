@@ -1,0 +1,32 @@
+{
+  "user": {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "email": "user@example.com",
+    "verified": true,
+    "username": "string",
+    "first_name": "string",
+    "last_name": "string",
+    "roles": [
+      "admin"
+    ],
+    "groups": [
+      {
+        "id": "00000000-0000-0000-0000-000000000001",
+        "name": "string"
+      }
+    ],
+    "data": {
+      "tou": false,
+      "long_conversions": false,
+      "stripe": {},
+      "calibration": {
+        "calibration_id": "string",
+        "f0": 0
+      },
+      "bucket": "string",
+      "promo": {},
+      "exclude_public_models": false
+    }
+  },
+  "csrf_token": "string"
+}

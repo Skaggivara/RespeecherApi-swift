@@ -1,0 +1,23 @@
+{
+  "default": "string",
+  "voices": {
+    "additionalProp1": {
+      "code": "string",
+      "name": "string1",
+      "gender": "male",
+      "f0": 0
+    },
+    "additionalProp2": {
+      "code": "string",
+      "name": "string2",
+      "gender": "male",
+      "f0": 0
+    },
+    "additionalProp3": {
+      "code": "string3",
+      "name": "string",
+      "gender": "male",
+      "f0": 0
+    }
+  }
+}
