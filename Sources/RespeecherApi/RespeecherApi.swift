@@ -387,19 +387,19 @@ public protocol RespeechApiAuthDelegate: AnyObject {
 
 public class RespeechApi {
 
-    static var endPoint = "https://gateway.respeecher.com/api/"
+    public static var endPoint = "https://gateway.respeecher.com/api/"
 
     private let tokenKey: String = "respeecher_token"
     private let cookieKey: String = "respeecher_savedCookies"
 
-    static let loginPath = endPoint + "login"
-    static let modelPath = endPoint + "models"
-    static let projectPath = endPoint + "projects"
-    static let phrasePath = endPoint + "phrases"
-    static let recordingPath = endPoint + "recordings"
-    static let orderPath = endPoint + "recordings/conversion-order"
-    static let voicePath = endPoint + "tts-voice"
-    static let voiceCreatePath = endPoint + "recordings/tts"
+    public static let loginPath = endPoint + "login"
+    public static let modelPath = endPoint + "models"
+    public static let projectPath = endPoint + "projects"
+    public static let phrasePath = endPoint + "phrases"
+    public static let recordingPath = endPoint + "recordings"
+    public static let orderPath = endPoint + "recordings/conversion-order"
+    public static let voicePath = endPoint + "tts-voice"
+    public static let voiceCreatePath = endPoint + "recordings/tts"
 
     public static let allowedFileTypes: [String] = ["wav", "ogg", "mp3", "flac"]
 
