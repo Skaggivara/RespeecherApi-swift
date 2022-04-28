@@ -171,6 +171,6 @@ Download recording to Documentsdir:
         if error == .authFailed {
             print("auth failed")
         } else {
-            self.error.onNext("failed to download recording")
+            print("failed to download recording")
         }
     }
