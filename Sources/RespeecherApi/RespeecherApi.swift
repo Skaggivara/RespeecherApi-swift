@@ -1,6 +1,6 @@
 //
 //  RespeechApi.swift
-//  Chroma
+//  Chroma recorder
 //
 //  Created by Isak Wiström on 2022-03-16.
 //
@@ -207,6 +207,7 @@ struct RespeecherVoice: Codable {
     let code: String
     let name: String
     let gender: String
+    var apiCode: String? = nil
 
     var displayName: String {
         return "\(name) - \(gender)"
@@ -250,9 +251,15 @@ struct RespeecherVoiceResponse: Codable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
         let voicesData = try container.decode([String: RespeecherVoice].self, forKey: .voices)
-        voices = Array(voicesData.values)
+        var list: [RespeecherVoice] = []
+        for (index, _) in voicesData.enumerated() {
+            let key = Array(voicesData.keys)[index]
+            var obj = Array(voicesData.values)[index]
+            obj.apiCode = key
+            list.append(obj)
+        }
+        voices = list
     }
 }
 
