@@ -1,4 +1,4 @@
-# Respeecher API
+# RespeecherApi
 
 Documentation for the API: https://gateway.respeecher.com/api/docs
 
@@ -9,6 +9,36 @@ The Respeecher API is constructed around 3 main concepts: Project, Phrase and Re
 Project is just a high level organisation. Phrase is a piece of text or audio to be transformed. Recording is an original recording or a converted one either from audio or from text through TTS.
 
 You create a Phrase within a Project and then upload a recording or provide a text for which you then create an order to transform it into a new recording using a speech model. The resulting recording will be listed under the same Phrase. 
+
+## Installation
+
+### Swift Package Manager
+
+The Swift Package Manager is a tool for managing the distribution of Swift code. It’s integrated with the Swift build system to automate the process of downloading, compiling, and linking dependencies.
+
+### Manifest File
+
+Add RespeecherApi as a package to your Package.swift file and then specify it as a dependency of the Target in which you wish to use it.
+
+    import PackageDescription
+
+    let package = Package(
+        name: "MyProject",
+        platforms: [
+           .macOS(.v10_15)
+        ],
+        dependencies: [
+            .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.2.0"))
+        ],
+        targets: [
+            .target(
+                name: "MyProject",
+                dependencies: ["RespeecherApi"]),
+            .testTarget(
+                name: "MyProjectTests",
+                dependencies: ["MyProject"]),
+        ]
+    )
 
 ## Usage
 
