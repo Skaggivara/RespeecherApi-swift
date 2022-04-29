@@ -12,16 +12,12 @@ public final class RespeecherMockedData {
 
 final class RespeecherApiTests: XCTestCase {
 
-    static var respeecherLoginURL = URL(string: RespeechApi.loginPath)!
-    let respeecherLoginMock = Mock(url: respeecherLoginURL, dataType: .json, statusCode: 200, data: [
-        .get : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
-    ])
+    var session: Session!
 
     override func setUpWithError() throws {
         let configuration = URLSessionConfiguration.af.default
         configuration.protocolClasses = [MockingURLProtocol.self]
-        let _ = Alamofire.Session(configuration: configuration)
-        respeecherLoginMock.register()
+        session = Alamofire.Session(configuration: configuration)
     }
 
     override func tearDownWithError() throws {
@@ -30,60 +26,129 @@ final class RespeecherApiTests: XCTestCase {
 
     // MARK - respeecher tests
     func testRespeecherLoginSuccess() throws {
-        let api = RespeechApi()
-        api.login(username: "test", password: "test") { success in
+        let originalURL = URL(string: RespeechApi.loginPath)!
+        let mock = Mock(url: originalURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        mock.register()
+        let expectation = self.expectation(description: "Login success")
+        let api = RespeechApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
             XCTAssertTrue(success)
             XCTAssertTrue(api.isAuthenticated)
+            XCTAssertEqual(user!.email, "user@example.com")
+            XCTAssertEqual(api.user!.email, "user@example.com")
+            expectation.fulfill()
         }
+        waitForExpectations(timeout: 1, handler: nil)
     }
 
     func testRespeecherLoginFail() throws {
         let originalURL = URL(string: RespeechApi.loginPath)!
         let mock = Mock(url: originalURL, dataType: .json, statusCode: 403, data: [
-            .get : try! Data(contentsOf: RespeecherMockedData.loginFail)
+            .post : try! Data(contentsOf: RespeecherMockedData.loginFail)
         ])
         mock.register()
 
-        let api = RespeechApi()
+        let expectation = self.expectation(description: "Login fail")
+
+        let api = RespeechApi(manager: session)
         api.logout()
-        api.login(username: "test", password: "test") { success in
+        api.login(username: "test", password: "test") { (success, user) in
             XCTAssertFalse(success)
+            XCTAssertNil(user)
+            XCTAssertNil(api.user)
+            expectation.fulfill()
         }
+        waitForExpectations(timeout: 1, handler: nil)
     }
 
     func testRespeecherModelsSuccess() throws {
-        let modelsURL = URL(string: RespeechApi.modelPath)!
+        let loginURL = URL(string: RespeechApi.loginPath)!
+        let loginMock = Mock(url: loginURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        loginMock.register()
 
+        let modelsURL = URL(string: RespeechApi.modelPath)!
         let modelsMock = Mock(url: modelsURL, dataType: .json, statusCode: 200, data: [
             .get : try! Data(contentsOf: RespeecherMockedData.modelsSuccess)
         ])
         modelsMock.register()
 
-        let api = RespeechApi()
-        api.login(username: "test", password: "test") { success in
+        let expectation = self.expectation(description: "Models success")
+
+        let api = RespeechApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
             api.fetchModels { models in
-                XCTAssertTrue(models.count == 1)
-                XCTAssertTrue(models[0].name == "string")
+                XCTAssertTrue(models.count == 3)
+                XCTAssertTrue(models[0].name == "Arran")
+                expectation.fulfill()
             } onFailure: { error in
                 debugPrint(error)
             }
         }
+        waitForExpectations(timeout: 1, handler: nil)
     }
 
     func testRespeecherModelsFail() throws {
+        let loginURL = URL(string: RespeechApi.loginPath)!
+        let loginMock = Mock(url: loginURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        loginMock.register()
+
         let modelsURL = URL(string: RespeechApi.modelPath)!
         let modelsMock = Mock(url: modelsURL, dataType: .json, statusCode: 400, data: [
             .get : try! Data(contentsOf: RespeecherMockedData.modelsFail)
         ])
         modelsMock.register()
 
-        let api = RespeechApi()
-        api.login(username: "test", password: "test") { success in
+        let expectation = self.expectation(description: "Models fail")
+
+        let api = RespeechApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
             api.fetchModels { models in
                 debugPrint(models)
             } onFailure: { error in
                 XCTAssertTrue(error == .requestFailed())
+                expectation.fulfill()
             }
         }
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+
+    func testRespeecherModelsPreview() throws {
+        let loginURL = URL(string: RespeechApi.loginPath)!
+        let loginMock = Mock(url: loginURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        loginMock.register()
+
+        let modelsURL = URL(string: RespeechApi.modelPath)!
+        let modelsMock = Mock(url: modelsURL, dataType: .json, statusCode: 200, data: [
+            .get : try! Data(contentsOf: RespeecherMockedData.modelsSuccess)
+        ])
+        modelsMock.register()
+
+        let expectation = self.expectation(description: "Models preview")
+
+        let api = RespeechApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
+            XCTAssertTrue(success)
+            api.fetchModels { models in
+                XCTAssertTrue(models.count == 3)
+                XCTAssertTrue(models[0].name == "Arran")
+                XCTAssertTrue(models[1].name == "Reggie (Dog)")
+                XCTAssertTrue(models[2].name == "Sophie (Cat)")
+                XCTAssertTrue(models[0].previewUrl == "\(RespeechApi.modelPreviewEndpoint)arran_d.wav")
+                XCTAssertTrue(models[1].previewUrl == "\(RespeechApi.modelPreviewEndpoint)dog-reggie_d.wav")
+                XCTAssertTrue(models[2].previewUrl == "\(RespeechApi.modelPreviewEndpoint)cat-sophie_d.wav")
+                expectation.fulfill()
+            } onFailure: { error in
+                debugPrint(error)
+            }
+        }
+        waitForExpectations(timeout: 1, handler: nil)
     }
 }

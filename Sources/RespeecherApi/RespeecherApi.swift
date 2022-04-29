@@ -17,9 +17,11 @@ public enum RespeechApiError: Equatable {
 public struct RespeecherGroup: Codable {
     public let id: String
     public let name: String
+
     enum CodingKeys: String, CodingKey {
         case id, name
     }
+
     public init(id: String, name: String) {
         self.id = id
         self.name = name
@@ -64,7 +66,6 @@ public struct RespeecherLoginResponse: Codable {
 }
 
 public struct RespeecherRecording: Codable {
-
     public let id: String
     public let phraseId: String
     public let type: String
@@ -247,6 +248,20 @@ public struct RespeecherModel: Codable {
     public let dateCreated: String
     public let params: [RespeecherModelParam]
 
+    // Note that this is a guess, it might not exist
+    public var previewUrl: String {
+        get {
+            var fileName = name.lowercased().replacingOccurrences(of: " (cat)", with: "").replacingOccurrences(of: " (dog)", with: "")
+            if name.contains(" (Cat)") {
+                fileName = "cat-\(fileName)"
+            }
+            if name.contains(" (Dog)") {
+                fileName = "dog-\(fileName)"
+            }
+            return "\(RespeechApi.modelPreviewEndpoint)\(fileName)_d.wav"
+        }
+    }
+
     enum CodingKeys: String, CodingKey {
         case id, name, owner, visibility, m2o, params
         case dateCreated = "date_created"
@@ -348,9 +363,11 @@ public struct RespeecherErrorValidation: Codable {
 
 public struct RespeecherErrorValidationResponse: Codable {
     public let detail: [RespeecherErrorValidation]
+
     enum CodingKeys: String, CodingKey {
         case detail
     }
+
     public init(detail: [RespeecherErrorValidation]) {
         self.detail = detail
     }
@@ -366,7 +383,6 @@ public struct RespeecherVoiceResponse: Codable {
     public init(voices: [RespeecherVoice]) {
         self.voices = voices
     }
-
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let voicesData = try container.decode([String: RespeecherVoice].self, forKey: .voices)
@@ -387,7 +403,8 @@ public protocol RespeechApiAuthDelegate: AnyObject {
 
 public class RespeechApi {
 
-    public static var endPoint = "https://gateway.respeecher.com/api/"
+    public static let endPoint = "https://gateway.respeecher.com/api/"
+    public static let modelPreviewEndpoint = "https://takebaker.respeecher.com/audition-voices/"
 
     private let tokenKey: String = "respeecher_token"
     private let cookieKey: String = "respeecher_savedCookies"
@@ -410,9 +427,13 @@ public class RespeechApi {
     }
     public private(set) var isAutenticating: Bool = false
 
+    public private(set) var user: RespeecherUser?
+
     public private(set) var token: String = ""
 
     public weak var delegate: RespeechApiAuthDelegate?
+
+    private let manager: Session
 
     var tokenHeaders: HTTPHeaders {
         get {
@@ -420,7 +441,8 @@ public class RespeechApi {
         }
     }
 
-    public init() {
+    public init(manager: Session = Session.default) {
+        self.manager = manager
         self.loadExisting()
     }
 
@@ -479,7 +501,7 @@ public class RespeechApi {
             onFailure(.authFailed)
             return
         }
-        AF.request(path, method: method, parameters: parameters, encoding: encoding, headers: headers).responseDecodable(of: T.self) { response in
+        manager.request(path, method: method, parameters: parameters, encoding: encoding, headers: headers).responseDecodable(of: T.self) { response in
             switch response.result {
             case .success:
                 if let responseCode = response.response?.statusCode, responseCode < 400, let result = response.value {
@@ -506,10 +528,11 @@ public class RespeechApi {
         isAuthenticated = false
         clearCookies()
         clearToken()
+        user = nil
         return true
     }
 
-    public func login(username: String, password: String, completion: ((Bool) -> Void)? = nil) {
+    public func login(username: String, password: String, completion: ((Bool, RespeecherUser?) -> Void)? = nil) {
 
         let parameters: [String: Any] = [
             "email": username,
@@ -521,7 +544,7 @@ public class RespeechApi {
 
         clearCookies()
 
-        AF.request(RespeechApi.loginPath, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseDecodable(of: RespeecherLoginResponse.self) { response in
+        manager.request(RespeechApi.loginPath, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseDecodable(of: RespeecherLoginResponse.self) { response in
             switch response.result {
             case .success:
                 if let responseCode = response.response?.statusCode, responseCode < 400, let loginResponse = response.value {
@@ -529,12 +552,13 @@ public class RespeechApi {
                     self.isAuthenticated = true
                     self.saveCookies(response: response)
                     self.saveToken()
+                    self.user = response.value?.user
                 }
             case .failure:
                 break
             }
             self.isAutenticating = false
-            completion?(self.isAuthenticated)
+            completion?(self.isAuthenticated, response.value?.user)
         }
     }
 
@@ -577,7 +601,7 @@ public class RespeechApi {
             "microphone": fileName
         ]
 
-        AF.upload(multipartFormData: { multiPart in
+        manager.upload(multipartFormData: { multiPart in
             for (key, value) in parameters {
                 if let temp = value as? String {
                     multiPart.append(temp.data(using: .utf8)!, withName: key)
@@ -649,7 +673,7 @@ public class RespeechApi {
             "token": self.token
         ]
 
-        AF.download(url,
+        manager.download(url,
             method: .get,
             parameters: parameters,
             encoding: URLEncoding.default,
