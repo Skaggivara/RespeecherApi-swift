@@ -20,25 +20,27 @@ The Swift Package Manager is a tool for managing the distribution of Swift code.
 
 Add RespeecherApi as a package to your Package.swift file and then specify it as a dependency of the Target in which you wish to use it.
 
-    import PackageDescription
+```swift
+import PackageDescription
 
-    let package = Package(
-        name: "MyProject",
-        platforms: [
-           .macOS(.v10_15)
-        ],
-        dependencies: [
-            .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.2.0"))
-        ],
-        targets: [
-            .target(
-                name: "MyProject",
-                dependencies: ["RespeecherApi"]),
-            .testTarget(
-                name: "MyProjectTests",
-                dependencies: ["MyProject"]),
-        ]
-    )
+let package = Package(
+    name: "MyProject",
+    platforms: [
+       .macOS(.v10_15)
+    ],
+    dependencies: [
+        .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.2.0"))
+    ],
+    targets: [
+        .target(
+            name: "MyProject",
+            dependencies: ["RespeecherApi"]),
+        .testTarget(
+            name: "MyProjectTests",
+            dependencies: ["MyProject"]),
+    ]
+)
+```
 
 ## Usage
 
@@ -46,104 +48,122 @@ Create instance of RespeechApi, authentication cookie is saved in NSUserdefaults
 
 ### Check authentication:
 
-    api.isAuthenticated
+```swift
+api.isAuthenticated
+```
 
 ### Login if needed:
 
-    api.login(username: username, password: password) { (authenticated, user) in
-        print("authenticated: \(authenticated)")
-    }
+```swift
+api.login(username: username, password: password) { (authenticated, user) in
+    print("authenticated: \(authenticated)")
+}
+```
 
 ### Listen to authStatus changes:
 
-    api.delegate = self
+```swift
+api.delegate = self
 
-    ...
+...
 
-    func authStatusChanged(_ sender: RespeechApi, authenticated: Bool) {
-        print("authenticated: \(authenticated)")
-    }
+func authStatusChanged(_ sender: RespeechApi, authenticated: Bool) {
+    print("authenticated: \(authenticated)")
+}
+```
 
 ### Fetch projects:
 
-    api.fetchProjects { projects in
-        print(projects)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to fetch")
-        }
+```swift
+api.fetchProjects { projects in
+    print(projects)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to fetch")
     }
+}
+```
 
 ### Fetch phrases for a given project:
 
-    api.fetchPhrases(projectId: projectId) { results in
-        print(results)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to fetch phrases")
-        }
+```swift
+api.fetchPhrases(projectId: projectId) { results in
+    print(results)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to fetch phrases")
     }
+}
+```
 
 ### Fetch recordings for a given phrase:
 
-    api.fetchRecordings(phraseId: phraseId) { recordings in
-        print(recordings)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to fetch recordings")
-        }
+```swift
+api.fetchRecordings(phraseId: phraseId) { recordings in
+    print(recordings)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to fetch recordings")
     }
+}
+```
 
 ### Fetch models:
 
-    api.fetchModels { models in
-        print(models)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to fetch Models")
-        }
+```swift
+api.fetchModels { models in
+    print(models)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to fetch Models")
     }
+}
+```
 
 ### Create phrase:
 
-    api.createPhrase(projectId: projectId, phrase: phraseName) { phrase in
-        print(phrase)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to create Phrase")
-        }
+```swift
+api.createPhrase(projectId: projectId, phrase: phraseName) { phrase in
+    print(phrase)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to create Phrase")
     }
+}
+```
 
 ### Create recording:
 
 You can create a recording belonging to a phrase. A recording is a sound file in the one of the following file formats: ('wav', 'ogg', 'mp3', 'flac')
 
-PHRASE_ID = phrase id
-DATA = sound file data (Data) instance of sound file
-FILENAME = name of file
-MIMETYPE = sound file mime type, example: "audio/wav"
+- PHRASE_ID = phrase id
+- DATA = sound file data (Data) instance of sound file
+- FILENAME = name of file
+- MIMETYPE = sound file mime type, example: "audio/wav"
 
-    api.createRecording(phraseId: PHRASE_ID, recording: DATA, fileName: FILENAME, mimeType: MIMETYPE) { recording in
-        print("recording created")
-    } onProgress: { progress in
-        print("upload progress: \(progress)")
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("upload failed")
-        }
+```swift
+api.createRecording(phraseId: PHRASE_ID, recording: DATA, fileName: FILENAME, mimeType: MIMETYPE) { recording in
+    print("recording created")
+} onProgress: { progress in
+    print("upload progress: \(progress)")
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("upload failed")
     }
+}
+```
 
 ### Create recording order:
 
@@ -151,55 +171,63 @@ You reference a recording's originalId to start a conversion using a specified m
 
 modelParams = list of parameters for model, see RespeecherModel's defaultParams()
 
-    api.createOrder(originalId: originalId, modelId: modelId, modelName: modelName, modelParams: modelParams) { recording in
-        print(recording)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to created order")
-        }
+```swift
+api.createOrder(originalId: originalId, modelId: modelId, modelName: modelName, modelParams: modelParams) { recording in
+    print(recording)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to created order")
     }
+}
+```
 
 ### Fetch TTS voices:
 
 Before creating a TTS recording you need a TTS voice to use.
 
-    api.fetchTTSVoices { voices in
-        print(voices)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to fetch Voices")
-        }
+```swift
+api.fetchTTSVoices { voices in
+    print(voices)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to fetch Voices")
     }
+}
+```
 
 ### Create TTS file:
 
-    api.createTTS(phraseId: phraseId, voice: voiceName, text: text) { recording in
-        print(recording)
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to initiate TTS")
-        }
+```swift
+api.createTTS(phraseId: phraseId, voice: voiceName, text: text) { recording in
+    print(recording)
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to initiate TTS")
     }
+}
+```
 
 ### Download recording to Documentsdir:
 
-    api.downloadRecording(recording) { recording in
-        print(recording)
-    } onProgress: { progress in
-        print("download progress: \(progress)")
-    } onFailure: { error in
-        if error == .authFailed {
-            print("auth failed")
-        } else {
-            print("failed to download recording")
-        }
+```swift
+api.downloadRecording(recording) { recording in
+    print(recording)
+} onProgress: { progress in
+    print("download progress: \(progress)")
+} onFailure: { error in
+    if error == .authFailed {
+        print("auth failed")
+    } else {
+        print("failed to download recording")
     }
+}
+```
 
 ### Get preview url for models:
 
