@@ -412,7 +412,7 @@ public class RespeechApi {
 
     public private(set) var token: String = ""
 
-    weak var delegate: RespeechApiAuthDelegate?
+    public weak var delegate: RespeechApiAuthDelegate?
 
     var tokenHeaders: HTTPHeaders {
         get {
