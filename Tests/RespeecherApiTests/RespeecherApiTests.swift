@@ -8,6 +8,8 @@ public final class RespeecherMockedData {
     public static let loginFail: URL = Bundle.module.url(forResource: "resources/login_fail", withExtension: "json")!
     public static let modelsSuccess: URL = Bundle.module.url(forResource: "resources/models_success", withExtension: "json")!
     public static let modelsFail: URL = Bundle.module.url(forResource: "resources/models_fail", withExtension: "json")!
+    public static let generalFail: URL = Bundle.module.url(forResource: "resources/general_fail", withExtension: "json")!
+    public static let validationFail: URL = Bundle.module.url(forResource: "resources/validation_fail", withExtension: "json")!
 }
 
 final class RespeecherApiTests: XCTestCase {
@@ -147,6 +149,77 @@ final class RespeecherApiTests: XCTestCase {
                 expectation.fulfill()
             } onFailure: { error in
                 debugPrint(error)
+            }
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+
+    func testRespeecherResponse400() throws {
+        let loginURL = URL(string: RespeechApi.loginPath)!
+        let loginMock = Mock(url: loginURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        loginMock.register()
+
+        let modelsURL = URL(string: RespeechApi.modelPath)!
+        let modelsMock = Mock(url: modelsURL, dataType: .json, statusCode: 400, data: [
+            .get : try! Data(contentsOf: RespeecherMockedData.generalFail)
+        ])
+        modelsMock.register()
+
+        let expectation = self.expectation(description: "Status response")
+
+        let api = RespeechApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
+            XCTAssertTrue(success)
+            api.fetchModels { models in
+                expectation.fulfill()
+            } onFailure: { error in
+                switch error {
+                case .requestFailed(let message, let responseCode):
+                    XCTAssertEqual(message, "error description")
+                    XCTAssertEqual(responseCode, RespeechApiResponseCode.badRequest)
+                    break
+                default:
+                    break
+                }
+                expectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+
+    func testRespeecherResponse422() throws {
+        let loginURL = URL(string: RespeechApi.loginPath)!
+        let loginMock = Mock(url: loginURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        loginMock.register()
+
+        let modelsURL = URL(string: RespeechApi.modelPath)!
+        let modelsMock = Mock(url: modelsURL, dataType: .json, statusCode: 422, data: [
+            .get : try! Data(contentsOf: RespeecherMockedData.validationFail)
+        ])
+        modelsMock.register()
+
+        let expectation = self.expectation(description: "Status response validation error")
+
+        let api = RespeechApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
+            XCTAssertTrue(success)
+            api.fetchModels { models in
+                expectation.fulfill()
+            } onFailure: { error in
+                switch error {
+                case .validationFailed(let validationErrors, let responseCode):
+                    XCTAssertEqual(validationErrors.detail.count, 1)
+                    XCTAssertEqual(responseCode, RespeechApiResponseCode.validationError)
+                    XCTAssertEqual(validationErrors.detail[0].msg, "some error desc")
+                    break
+                default:
+                    break
+                }
+                expectation.fulfill()
             }
         }
         waitForExpectations(timeout: 1, handler: nil)

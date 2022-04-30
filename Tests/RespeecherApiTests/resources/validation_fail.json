@@ -1,0 +1,11 @@
+{
+  "detail": [
+    {
+      "loc": [
+        "email"
+      ],
+      "msg": "some error desc",
+      "type": "some type"
+    }
+  ]
+}
