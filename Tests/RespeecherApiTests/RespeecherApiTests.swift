@@ -82,7 +82,7 @@ final class RespeecherApiTests: XCTestCase {
         api.login(username: "test", password: "test") { (success, user) in
             api.fetchModels { models in
                 XCTAssertTrue(models.count == 3)
-                XCTAssertTrue(models[0].name == "Arran")
+                XCTAssertTrue(models[0].name == "Aaron")
                 expectation.fulfill()
             } onFailure: { error in
                 debugPrint(error)
@@ -138,12 +138,12 @@ final class RespeecherApiTests: XCTestCase {
             XCTAssertTrue(success)
             api.fetchModels { models in
                 XCTAssertTrue(models.count == 3)
-                XCTAssertTrue(models[0].name == "Arran")
-                XCTAssertTrue(models[1].name == "Reggie (Dog)")
-                XCTAssertTrue(models[2].name == "Sophie (Cat)")
-                XCTAssertTrue(models[0].previewUrl == "\(RespeechApi.modelPreviewEndpoint)arran_d.wav")
-                XCTAssertTrue(models[1].previewUrl == "\(RespeechApi.modelPreviewEndpoint)dog-reggie_d.wav")
-                XCTAssertTrue(models[2].previewUrl == "\(RespeechApi.modelPreviewEndpoint)cat-sophie_d.wav")
+                XCTAssertTrue(models[0].name == "Aaron")
+                XCTAssertTrue(models[1].name == "Plyukh (Dog)")
+                XCTAssertTrue(models[2].name == "Fiona (Cat)")
+                XCTAssertTrue(models[0].previewUrl == "\(RespeechApi.modelPreviewEndpoint)aaron_d.wav")
+                XCTAssertTrue(models[1].previewUrl == "\(RespeechApi.modelPreviewEndpoint)dog-plyukh_d.wav")
+                XCTAssertTrue(models[2].previewUrl == "\(RespeechApi.modelPreviewEndpoint)cat-fiona_d.wav")
                 expectation.fulfill()
             } onFailure: { error in
                 debugPrint(error)
