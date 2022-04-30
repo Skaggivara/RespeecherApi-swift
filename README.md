@@ -78,7 +78,7 @@ func authStatusChanged(_ sender: RespeechApi, authenticated: Bool) {
 api.fetchProjects { projects in
     print(projects)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to fetch")
@@ -92,7 +92,7 @@ api.fetchProjects { projects in
 api.fetchPhrases(projectId: projectId) { results in
     print(results)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to fetch phrases")
@@ -106,7 +106,7 @@ api.fetchPhrases(projectId: projectId) { results in
 api.fetchRecordings(phraseId: phraseId) { recordings in
     print(recordings)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to fetch recordings")
@@ -120,7 +120,7 @@ api.fetchRecordings(phraseId: phraseId) { recordings in
 api.fetchModels { models in
     print(models)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to fetch Models")
@@ -134,7 +134,7 @@ api.fetchModels { models in
 api.createPhrase(projectId: projectId, phrase: phraseName) { phrase in
     print(phrase)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to create Phrase")
@@ -157,7 +157,7 @@ api.createRecording(phraseId: PHRASE_ID, recording: DATA, fileName: FILENAME, mi
 } onProgress: { progress in
     print("upload progress: \(progress)")
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("upload failed")
@@ -175,7 +175,7 @@ modelParams = list of parameters for model, see RespeecherModel's defaultParams(
 api.createOrder(originalId: originalId, modelId: modelId, modelName: modelName, modelParams: modelParams) { recording in
     print(recording)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to created order")
@@ -191,7 +191,7 @@ Before creating a TTS recording you need a TTS voice to use.
 api.fetchTTSVoices { voices in
     print(voices)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to fetch Voices")
@@ -205,7 +205,7 @@ api.fetchTTSVoices { voices in
 api.createTTS(phraseId: phraseId, voice: voiceName, text: text) { recording in
     print(recording)
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to initiate TTS")
@@ -221,7 +221,7 @@ api.downloadRecording(recording) { recording in
 } onProgress: { progress in
     print("download progress: \(progress)")
 } onFailure: { error in
-    if error == .authFailed {
+    if error == .authFailed() {
         print("auth failed")
     } else {
         print("failed to download recording")
@@ -232,3 +232,31 @@ api.downloadRecording(recording) { recording in
 ### Get preview url for models:
 
 Each instance of RespeecherModel has a previewUrl property, this is a guess based on preview names from respeecher website
+
+
+### Error response types
+
+```swift
+public enum RespeechApiError: Equatable {
+    case uploadFailed(String? = nil, RespeechApiResponseCode = .none)
+    case authFailed(String? = nil, RespeechApiResponseCode = .unauthorized)
+    case requestFailed(String? = nil, RespeechApiResponseCode = .none)
+    case validationFailed(RespeecherErrorValidationResponse, RespeechApiResponseCode = .validationError)
+}
+```
+
+### Error codes
+
+```swift
+public enum RespeechApiResponseCode: Int {
+    case none = 0
+    case success = 200
+    case badRequest = 400
+    case unauthorized = 401
+    case paymentRequired = 402
+    case forbidden = 403
+    case notFound = 404
+    case validationError = 422
+    case serverError = 500
+}
+```
