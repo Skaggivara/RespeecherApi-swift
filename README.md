@@ -29,7 +29,7 @@ let package = Package(
        .macOS(.v10_15)
     ],
     dependencies: [
-        .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.3.0"))
+        .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.4.0"))
     ],
     targets: [
         .target(
@@ -45,6 +45,12 @@ let package = Package(
 ## Usage
 
 Create instance of RespeechApi, authentication cookie is saved in NSUserdefaults and loaded on init. So when api instance is created first check if already authenticated.
+
+```swift
+import RespeecherApi
+
+let api = RespeecherApi()
+```
 
 ### Check authentication:
 
