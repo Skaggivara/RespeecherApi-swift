@@ -402,6 +402,32 @@ public struct RespeecherCalibration: Codable {
     }
 }
 
+public struct RespeecherPagination: Codable {
+    public let count: Int
+    public let limit: Int
+    public let offset: Int
+}
+
+public struct RespeecherProjects: Codable {
+    public let list: [RespeecherProject]
+    public let pagination: RespeecherPagination
+}
+
+public struct RespeecherModels: Codable {
+    public let list: [RespeecherModel]
+    public let pagination: RespeecherPagination
+}
+
+public struct RespeecherPhrases: Codable {
+    public let list: [RespeecherPhrase]
+    public let pagination: RespeecherPagination
+}
+
+public struct RespeecherRecordings: Codable {
+    public let list: [RespeecherRecording]
+    public let pagination: RespeecherPagination
+}
+
 public struct RespeecherErrorResponse: Codable {
     public let detail: String
     enum CodingKeys: String, CodingKey {
@@ -698,7 +724,7 @@ public class RespeecherApi {
             }
     }
 
-    public func fetchProjects(completion: @escaping ([RespeecherProject]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+    public func fetchProjects(completion: @escaping (RespeecherProjects) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         request(RespeecherApi.projectPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
@@ -722,7 +748,7 @@ public class RespeecherApi {
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func fetchModels(completion: @escaping ([RespeecherModel]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+    public func fetchModels(completion: @escaping (RespeecherModels) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         request(RespeecherApi.modelPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
@@ -766,7 +792,7 @@ public class RespeecherApi {
             }
     }
 
-    public func fetchRecordings(phraseId: String, completion: @escaping ([RespeecherRecording]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+    public func fetchRecordings(phraseId: String, completion: @escaping (RespeecherRecordings) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "phrase_id": phraseId
         ]
@@ -867,7 +893,7 @@ public class RespeecherApi {
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func fetchPhrases(projectId: String, completion: @escaping ([RespeecherPhrase]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+    public func fetchPhrases(projectId: String, completion: @escaping (RespeecherPhrases) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "project_id": projectId
         ]

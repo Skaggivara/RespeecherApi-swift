@@ -26,7 +26,6 @@ final class RespeecherApiTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    // MARK - respeecher tests
     func testRespeecherLoginSuccess() throws {
         let originalURL = URL(string: RespeecherApi.loginPath)!
         let mock = Mock(url: originalURL, dataType: .json, statusCode: 200, data: [
@@ -83,8 +82,8 @@ final class RespeecherApiTests: XCTestCase {
         let api = RespeecherApi(manager: session)
         api.login(username: "test", password: "test") { (success, user) in
             api.fetchModels { models in
-                XCTAssertTrue(models.count == 3)
-                XCTAssertTrue(models[0].name == "Aaron")
+                XCTAssertTrue(models.list.count == 3)
+                XCTAssertTrue(models.list[0].name == "Aaron")
                 expectation.fulfill()
             } onFailure: { error in
                 debugPrint(error)
@@ -139,13 +138,13 @@ final class RespeecherApiTests: XCTestCase {
         api.login(username: "test", password: "test") { (success, user) in
             XCTAssertTrue(success)
             api.fetchModels { models in
-                XCTAssertTrue(models.count == 3)
-                XCTAssertTrue(models[0].name == "Aaron")
-                XCTAssertTrue(models[1].name == "Plyukh (Dog)")
-                XCTAssertTrue(models[2].name == "Fiona (Cat)")
-                XCTAssertTrue(models[0].previewUrl == "\(RespeecherApi.modelPreviewEndpoint)aaron_d.wav")
-                XCTAssertTrue(models[1].previewUrl == "\(RespeecherApi.modelPreviewEndpoint)dog-plyukh_d.wav")
-                XCTAssertTrue(models[2].previewUrl == "\(RespeecherApi.modelPreviewEndpoint)cat-fiona_d.wav")
+                XCTAssertTrue(models.list.count == 3)
+                XCTAssertTrue(models.list[0].name == "Aaron")
+                XCTAssertTrue(models.list[1].name == "Plyukh (Dog)")
+                XCTAssertTrue(models.list[2].name == "Fiona (Cat)")
+                XCTAssertTrue(models.list[0].previewUrl == "\(RespeecherApi.modelPreviewEndpoint)aaron_d.wav")
+                XCTAssertTrue(models.list[1].previewUrl == "\(RespeecherApi.modelPreviewEndpoint)dog-plyukh_d.wav")
+                XCTAssertTrue(models.list[2].previewUrl == "\(RespeecherApi.modelPreviewEndpoint)cat-fiona_d.wav")
                 expectation.fulfill()
             } onFailure: { error in
                 debugPrint(error)
@@ -167,7 +166,7 @@ final class RespeecherApiTests: XCTestCase {
         ])
         modelsMock.register()
 
-        let expectation = self.expectation(description: "Status response")
+        let expectation = self.expectation(description: "Status response 400")
 
         let api = RespeecherApi(manager: session)
         api.login(username: "test", password: "test") { (success, user) in
@@ -179,6 +178,41 @@ final class RespeecherApiTests: XCTestCase {
                 case .requestFailed(let message, let responseCode):
                     XCTAssertEqual(message, "error description")
                     XCTAssertEqual(responseCode, RespeecherApiResponseCode.badRequest)
+                    break
+                default:
+                    break
+                }
+                expectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1, handler: nil)
+    }
+
+    func testRespeecherResponse404() throws {
+        let loginURL = URL(string: RespeecherApi.loginPath)!
+        let loginMock = Mock(url: loginURL, dataType: .json, statusCode: 200, data: [
+            .post : try! Data(contentsOf: RespeecherMockedData.loginSuccess)
+        ])
+        loginMock.register()
+
+        let modelsURL = URL(string: RespeecherApi.modelPath)!
+        let modelsMock = Mock(url: modelsURL, dataType: .json, statusCode: 404, data: [
+            .get : try! Data(contentsOf: RespeecherMockedData.generalFail)
+        ])
+        modelsMock.register()
+
+        let expectation = self.expectation(description: "Status response 404")
+
+        let api = RespeecherApi(manager: session)
+        api.login(username: "test", password: "test") { (success, user) in
+            XCTAssertTrue(success)
+            api.fetchModels { models in
+                expectation.fulfill()
+            } onFailure: { error in
+                switch error {
+                case .requestFailed(let message, let responseCode):
+                    XCTAssertEqual(message, "error description")
+                    XCTAssertEqual(responseCode, RespeecherApiResponseCode.notFound)
                     break
                 default:
                     break
