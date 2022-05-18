@@ -10,7 +10,7 @@ import Alamofire
 
 // https://gateway.respeecher.com/api/docs
 
-public enum RespeechApiResponseCode: Int {
+public enum RespeecherApiResponseCode: Int {
     case none = 0
     case success = 200
     case badRequest = 400
@@ -22,14 +22,14 @@ public enum RespeechApiResponseCode: Int {
     case serverError = 500
 }
 
-public enum RespeechApiError: Equatable {
+public enum RespeecherApiError: Equatable {
 
-    case uploadFailed(String? = nil, RespeechApiResponseCode = .none)
-    case authFailed(String? = nil, RespeechApiResponseCode = .unauthorized)
-    case requestFailed(String? = nil, RespeechApiResponseCode = .none)
-    case validationFailed(RespeecherErrorValidationResponse, RespeechApiResponseCode = .validationError)
+    case uploadFailed(String? = nil, RespeecherApiResponseCode = .none)
+    case authFailed(String? = nil, RespeecherApiResponseCode = .unauthorized)
+    case requestFailed(String? = nil, RespeecherApiResponseCode = .none)
+    case validationFailed(RespeecherErrorValidationResponse, RespeecherApiResponseCode = .validationError)
 
-    public static func == (lhs: RespeechApiError, rhs: RespeechApiError) -> Bool {
+    public static func == (lhs: RespeecherApiError, rhs: RespeecherApiError) -> Bool {
         switch(lhs, rhs) {
         case (.uploadFailed, .uploadFailed):
             return true
@@ -289,7 +289,7 @@ public struct RespeecherModel: Codable {
             if name.contains(" (Dog)") {
                 fileName = "dog-\(fileName)"
             }
-            return "\(RespeechApi.modelPreviewEndpoint)\(fileName)_d.wav"
+            return "\(RespeecherApi.modelPreviewEndpoint)\(fileName)_d.wav"
         }
     }
 
@@ -463,11 +463,11 @@ public struct RespeecherVoiceResponse: Codable {
     }
 }
 
-public protocol RespeechApiAuthDelegate: AnyObject {
-    func authStatusChanged(_ sender: RespeechApi, authenticated: Bool)
+public protocol RespeecherApiAuthDelegate: AnyObject {
+    func authStatusChanged(_ sender: RespeecherApi, authenticated: Bool)
 }
 
-public class RespeechApi {
+public class RespeecherApi {
 
     public static let endPoint = "https://gateway.respeecher.com/api/"
     public static let modelPreviewEndpoint = "https://takebaker.respeecher.com/audition-voices/"
@@ -498,7 +498,7 @@ public class RespeechApi {
 
     public private(set) var token: String = ""
 
-    public weak var delegate: RespeechApiAuthDelegate?
+    public weak var delegate: RespeecherApiAuthDelegate?
 
     private let manager: Session
 
@@ -563,8 +563,8 @@ public class RespeechApi {
         }
     }
 
-    private func handleRequestResponse<T: Decodable>(response: DataResponse<T, AFError>, completion: @escaping (T) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        guard let responseCode = response.response?.statusCode, let statusCode = RespeechApiResponseCode(rawValue: responseCode) else {
+    private func handleRequestResponse<T: Decodable>(response: DataResponse<T, AFError>, completion: @escaping (T) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        guard let responseCode = response.response?.statusCode, let statusCode = RespeecherApiResponseCode(rawValue: responseCode) else {
             onFailure(.requestFailed())
             return
         }
@@ -607,7 +607,7 @@ public class RespeechApi {
         }
     }
 
-    private func request<T: Decodable>(_ path: String, method: HTTPMethod, parameters: [String:Any]?, encoding: ParameterEncoding = JSONEncoding.default, headers: HTTPHeaders?, completion: @escaping (T) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    private func request<T: Decodable>(_ path: String, method: HTTPMethod, parameters: [String:Any]?, encoding: ParameterEncoding = JSONEncoding.default, headers: HTTPHeaders?, completion: @escaping (T) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         if !isAuthenticated {
             onFailure(.authFailed())
             return
@@ -641,7 +641,7 @@ public class RespeechApi {
 
         clearCookies()
 
-        manager.request(RespeechApi.loginPath, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseDecodable(of: RespeecherLoginResponse.self) { response in
+        manager.request(RespeecherApi.loginPath, method: .post, parameters: parameters, encoding: JSONEncoding.default).responseDecodable(of: RespeecherLoginResponse.self) { response in
             switch response.result {
             case .success:
                 if let responseCode = response.response?.statusCode, responseCode < 400, let loginResponse = response.value {
@@ -659,21 +659,21 @@ public class RespeechApi {
         }
     }
 
-    public func fetchCalibration(completion: @escaping ([RespeecherCalibration]) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        request(RespeechApi.calibrationPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+    public func fetchCalibration(completion: @escaping ([RespeecherCalibration]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        request(RespeecherApi.calibrationPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func enableCalibration(calibrationId: String, completion: @escaping (RespeecherCalibration) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        let path = "\(RespeechApi.calibrationPath)/\(calibrationId)/enable"
+    public func enableCalibration(calibrationId: String, completion: @escaping (RespeecherCalibration) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        let path = "\(RespeecherApi.calibrationPath)/\(calibrationId)/enable"
         request(path, method: .put, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func deleteCalibration(calibrationId: String, completion: @escaping (RespeecherCalibration) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        let path = "\(RespeechApi.calibrationPath)/\(calibrationId)"
+    public func deleteCalibration(calibrationId: String, completion: @escaping (RespeecherCalibration) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        let path = "\(RespeecherApi.calibrationPath)/\(calibrationId)"
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func createCalibration(calibration: Data, name: String, completion: @escaping (RespeecherCalibration) -> Void, onProgress: @escaping (Double) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func createCalibration(calibration: Data, name: String, completion: @escaping (RespeecherCalibration) -> Void, onProgress: @escaping (Double) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         if !isAuthenticated {
             onFailure(.authFailed())
             return
@@ -689,7 +689,7 @@ public class RespeechApi {
                 }
             }
             multiPart.append(calibration, withName: "data")
-        }, to: RespeechApi.calibrationPath, method: .post, headers: tokenHeaders)
+        }, to: RespeecherApi.calibrationPath, method: .post, headers: tokenHeaders)
             .uploadProgress(queue: .main, closure: { progress in
                 onProgress(progress.fractionCompleted)
             })
@@ -698,49 +698,49 @@ public class RespeechApi {
             }
     }
 
-    public func fetchProjects(completion: @escaping ([RespeecherProject]) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        request(RespeechApi.projectPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+    public func fetchProjects(completion: @escaping ([RespeecherProject]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        request(RespeecherApi.projectPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func createProject(_ name: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func createProject(_ name: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "name": name
         ]
-        request(RespeechApi.modelPath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        request(RespeecherApi.modelPath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func updateProject(projectId: String, name: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func updateProject(projectId: String, name: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "name": name
         ]
-        let path = "\(RespeechApi.projectPath)/\(projectId)"
+        let path = "\(RespeecherApi.projectPath)/\(projectId)"
         request(path, method: .patch, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func deleteProject(projectId: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        let path = "\(RespeechApi.projectPath)/\(projectId)"
+    public func deleteProject(projectId: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        let path = "\(RespeecherApi.projectPath)/\(projectId)"
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func fetchModels(completion: @escaping ([RespeecherModel]) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        request(RespeechApi.modelPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+    public func fetchModels(completion: @escaping ([RespeecherModel]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        request(RespeecherApi.modelPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func createTTS(phraseId: String, voice: String, text: String, completion: @escaping (RespeecherRecording?) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func createTTS(phraseId: String, voice: String, text: String, completion: @escaping (RespeecherRecording?) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "phrase_id": phraseId,
             "text": text,
             "voice": voice
         ]
-        request(RespeechApi.voiceCreatePath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        request(RespeecherApi.voiceCreatePath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func fetchTTSVoices(completion: @escaping (RespeecherVoiceResponse) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        request(RespeechApi.voicePath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+    public func fetchTTSVoices(completion: @escaping (RespeecherVoiceResponse) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        request(RespeecherApi.voicePath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
     //  Supported extensions: ['wav', 'ogg', 'mp3', 'flac']
-    public func createRecording(phraseId: String, recording: Data, fileName: String = "recording.wav", mimeType: String = "audio/wav", completion: @escaping (RespeecherRecording?) -> Void, onProgress: @escaping (Double) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func createRecording(phraseId: String, recording: Data, fileName: String = "recording.wav", mimeType: String = "audio/wav", completion: @escaping (RespeecherRecording?) -> Void, onProgress: @escaping (Double) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         if !isAuthenticated {
             onFailure(.authFailed())
             return
@@ -757,7 +757,7 @@ public class RespeechApi {
                 }
             }
             multiPart.append(recording, withName: "data", fileName: fileName, mimeType: mimeType)
-        }, to: RespeechApi.recordingPath, method: .post, headers: tokenHeaders)
+        }, to: RespeecherApi.recordingPath, method: .post, headers: tokenHeaders)
             .uploadProgress(queue: .main, closure: { progress in
                 onProgress(progress.fractionCompleted)
             })
@@ -766,27 +766,27 @@ public class RespeechApi {
             }
     }
 
-    public func fetchRecordings(phraseId: String, completion: @escaping ([RespeecherRecording]) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func fetchRecordings(phraseId: String, completion: @escaping ([RespeecherRecording]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "phrase_id": phraseId
         ]
-        request(RespeechApi.recordingPath, method: .get, parameters: parameters, encoding: URLEncoding.default, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        request(RespeecherApi.recordingPath, method: .get, parameters: parameters, encoding: URLEncoding.default, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func updateRecording(recordingId: String, name: String, completion: @escaping (RespeecherRecording) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func updateRecording(recordingId: String, name: String, completion: @escaping (RespeecherRecording) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "name": name
         ]
-        let path = "\(RespeechApi.recordingPath)/\(recordingId)"
+        let path = "\(RespeecherApi.recordingPath)/\(recordingId)"
         request(path, method: .put, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func deleteRecording(recordingId: String, completion: @escaping (RespeecherRecording) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        let path = "\(RespeechApi.recordingPath)/\(recordingId)"
+    public func deleteRecording(recordingId: String, completion: @escaping (RespeecherRecording) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        let path = "\(RespeecherApi.recordingPath)/\(recordingId)"
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func createOrder(originalId: String, modelId: String, modelName: String, modelParams: [[String: Any]], completion: @escaping ([RespeecherRecording]) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func createOrder(originalId: String, modelId: String, modelName: String, modelParams: [[String: Any]], completion: @escaping ([RespeecherRecording]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "original_id": originalId,
             "models": [
@@ -797,10 +797,10 @@ public class RespeechApi {
                 ]
             ]
         ]
-        request(RespeechApi.orderPath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        request(RespeecherApi.orderPath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func downloadRecording(_ recording: RespeecherRecording, completion: @escaping (String) -> Void, onProgress: @escaping (Double) -> Void,  onFailure: @escaping (RespeechApiError) -> Void) {
+    public func downloadRecording(_ recording: RespeecherRecording, completion: @escaping (String) -> Void, onProgress: @escaping (Double) -> Void,  onFailure: @escaping (RespeecherApiError) -> Void) {
         if !isAuthenticated {
             onFailure(.authFailed())
             return
@@ -846,31 +846,31 @@ public class RespeechApi {
         })
     }
 
-    public func createPhrase(projectId: String, phrase: String, completion: @escaping (RespeecherPhrase) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func createPhrase(projectId: String, phrase: String, completion: @escaping (RespeecherPhrase) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "project_id": projectId,
             "text": phrase
         ]
-        request(RespeechApi.phrasePath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        request(RespeecherApi.phrasePath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func updatePhrase(phraseId: String, text: String, completion: @escaping (RespeecherPhrase) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func updatePhrase(phraseId: String, text: String, completion: @escaping (RespeecherPhrase) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "text": text
         ]
-        let path = "\(RespeechApi.phrasePath)/\(phraseId)"
+        let path = "\(RespeecherApi.phrasePath)/\(phraseId)"
         request(path, method: .put, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func deletePhrase(phraseId: String, completion: @escaping (RespeecherPhrase) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
-        let path = "\(RespeechApi.phrasePath)/\(phraseId)"
+    public func deletePhrase(phraseId: String, completion: @escaping (RespeecherPhrase) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        let path = "\(RespeecherApi.phrasePath)/\(phraseId)"
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func fetchPhrases(projectId: String, completion: @escaping ([RespeecherPhrase]) -> Void, onFailure: @escaping (RespeechApiError) -> Void) {
+    public func fetchPhrases(projectId: String, completion: @escaping ([RespeecherPhrase]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "project_id": projectId
         ]
-        request(RespeechApi.phrasePath, method: .get, parameters: parameters, encoding: URLEncoding.default, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        request(RespeecherApi.phrasePath, method: .get, parameters: parameters, encoding: URLEncoding.default, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 }
