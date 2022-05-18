@@ -418,16 +418,6 @@ public struct RespeecherModels: Codable {
     public let pagination: RespeecherPagination
 }
 
-public struct RespeecherPhrases: Codable {
-    public let list: [RespeecherPhrase]
-    public let pagination: RespeecherPagination
-}
-
-public struct RespeecherRecordings: Codable {
-    public let list: [RespeecherRecording]
-    public let pagination: RespeecherPagination
-}
-
 public struct RespeecherErrorResponse: Codable {
     public let detail: String
     enum CodingKeys: String, CodingKey {
