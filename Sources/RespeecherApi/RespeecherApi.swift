@@ -792,7 +792,7 @@ public class RespeecherApi {
             }
     }
 
-    public func fetchRecordings(phraseId: String, completion: @escaping (RespeecherRecordings) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+    public func fetchRecordings(phraseId: String, completion: @escaping ([RespeecherRecording]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "phrase_id": phraseId
         ]
@@ -893,7 +893,7 @@ public class RespeecherApi {
         request(path, method: .delete, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func fetchPhrases(projectId: String, completion: @escaping (RespeecherPhrases) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+    public func fetchPhrases(projectId: String, completion: @escaping ([RespeecherPhrase]) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
         let parameters: [String: Any] = [
             "project_id": projectId
         ]

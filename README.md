@@ -29,7 +29,7 @@ let package = Package(
        .macOS(.v10_15)
     ],
     dependencies: [
-        .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.5.0"))
+        .package(url: "https://github.com/Skaggivara/RespeecherApi-swift", .upToNextMajor(from: "1.6.0"))
     ],
     targets: [
         .target(
