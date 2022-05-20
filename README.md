@@ -134,6 +134,23 @@ api.fetchModels { models in
 }
 ```
 
+### Create project:
+
+```swift
+let models: [RespeecherModel] = [model1, model2]
+let projectName = "Example project"
+
+api.createProject(projectName, models: models) { project in
+    print(project)
+} onFailure: { error in
+    if error == .authFailed() {
+        print("auth failed")
+    } else {
+        print("failed to create Project")
+    }
+}
+```
+
 ### Create phrase:
 
 ```swift
@@ -178,6 +195,8 @@ You reference a recording's originalId to start a conversion using a specified m
 modelParams = list of parameters for model, see RespeecherModel's defaultParams()
 
 ```swift
+let modelParams = currentModel.defaultParams()
+
 api.createOrder(originalId: originalId, modelId: modelId, modelName: modelName, modelParams: modelParams) { recording in
     print(recording)
 } onFailure: { error in

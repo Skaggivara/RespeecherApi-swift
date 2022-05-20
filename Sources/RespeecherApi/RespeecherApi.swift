@@ -277,7 +277,7 @@ public struct RespeecherModel: Codable {
     public let visibility: String
     public let m2o: Bool
     public let dateCreated: String
-    public let params: [RespeecherModelParam]
+    public var params: [RespeecherModelParam]
 
     // Note that this is a guess, it might not exist
     public var previewUrl: String {
@@ -316,6 +316,14 @@ public struct RespeecherModel: Codable {
                 "name": p.alias,
                 "value": p.defaultValue
             ])
+        }
+        return ps
+    }
+
+    public func defaultProjectParams() -> [String: Any] {
+        var ps: [String: Any] = [:]
+        for p in params {
+            ps[p.id] = p.defaultValue
         }
         return ps
     }
@@ -718,11 +726,17 @@ public class RespeecherApi {
         request(RespeecherApi.projectPath, method: .get, parameters: nil, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
-    public func createProject(_ name: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
-        let parameters: [String: Any] = [
-            "name": name
+    public func createProject(_ name: String, models: [RespeecherModel], completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
+        var parameters: [String: Any] = [
+            "name": name,
+            "owner": self.user?.id ?? "0"
         ]
-        request(RespeecherApi.modelPath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
+        var modelEntries: [String: Any] = [:]
+        for model in models {
+            modelEntries[model.id] = model.defaultProjectParams()
+        }
+        parameters["models"] = modelEntries
+        request(RespeecherApi.projectPath, method: .post, parameters: parameters, headers: tokenHeaders, completion: completion, onFailure: onFailure)
     }
 
     public func updateProject(projectId: String, name: String, completion: @escaping (RespeecherProject) -> Void, onFailure: @escaping (RespeecherApiError) -> Void) {
